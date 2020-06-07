@@ -714,22 +714,31 @@ class TestHarvestMail(FunctionalTestBase):
         subject, body = prepare_summary_mail(
             context, harvest_source['id'], status, 'emails/summary_email.txt')
 
+        print(str(status['last_job']['stats'].get('errored', 0)))
+        print(subject)
+
         assert subject == '{} - Harvesting Job Successful - Summary Notification'\
                           .format(config.get('ckan.site_title'))
-        assert isinstance(body, unicode)
 
     def test_prepare_summary_mail_error(self):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
         status = toolkit.get_action('harvest_source_show_status')(
             context, {'id': harvest_source['id']})
-        # Create error
         status['last_job']['stats'].update({'errored': 1})
         subject, body = prepare_summary_mail(
             context, harvest_source['id'], status, 'emails/summary_email.txt')
 
-        assert subject == '{} - Harvesting Job with Errors - Summary Notification'\
-                          .format(config.get('ckan.site_title'))
-        assert isinstance(body, unicode)
+        # create a HarvestGatherError
+        job_model = HarvestJob.get(job['id'])
+        msg = 'System error - No harvester could be found for source type %s' % job_model.source.type
+        err = HarvestGatherError(message=msg, job=job_model)
+        err.save()
+
+        print(type(body))
+        print(subject)
+
+        assert isinstance(subject, str)
+        assert isinstance(body, str)
 
     @patch('ckan.lib.mailer.mail_recipient')
     def test_error_mail_sent(self, mock_mailer_mail_recipient):
