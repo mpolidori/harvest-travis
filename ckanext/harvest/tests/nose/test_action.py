@@ -16,7 +16,7 @@ from ckanext.harvest.interfaces import IHarvester
 import ckanext.harvest.model as harvest_model
 from ckanext.harvest.model import HarvestGatherError, HarvestObjectError, HarvestObject, HarvestJob
 from ckanext.harvest.logic import HarvestJobExists
-from ckanext.harvest.logic.action.update import send_mail
+from ckanext.harvest.logic.action.update import send_mail, prepare_error_mail, prepare_summary_mail, get_mail_extra_vars
 
 
 def call_action_api(action, apikey=None, status=200, **kwargs):
@@ -694,8 +694,9 @@ class TestHarvestMail(FunctionalTestBase):
         assert mock_mailer_mail_recipient.not_called
 
     @patch('ckan.lib.mailer.mail_recipient')
-    def test_send_mail(self, mock_mailer_mail_recipient):
+    def test_mail_sent(self, mock_mailer_mail_recipient):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+
         send_mail(
             context,
             harvest_source['id'],
@@ -705,10 +706,20 @@ class TestHarvestMail(FunctionalTestBase):
 
         assert mock_mailer_mail_recipient.called
 
+    def test_prepare_error_mail_successful(self):
+        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        status = get_action('harvest_source_show_status')(
+            context, {'id': harvest_source['id']})
+        subject, body = toolkit.get_action('prepare_summary_mail')(
+            context, harvest_source['id'], status, 'emails/summary_email.txt')
+        assert subject == '{} - Harvesting Job with Errors - Summary Notification'\
+                          .format(config.get('ckan.site_title'))
+        assert isinstance(dict, body)
+
     @patch('ckan.lib.mailer.mail_recipient')
     def test_error_mail_sent(self, mock_mailer_mail_recipient):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
-        print(harvest_source)
+
         # create a HarvestGatherError
         job_model = HarvestJob.get(job['id'])
         msg = 'System error - No harvester could be found for source type %s' % job_model.source.type

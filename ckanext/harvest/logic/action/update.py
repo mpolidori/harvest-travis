@@ -569,18 +569,20 @@ def harvest_jobs_run(context, data_dict):
 
                     if config.get('ckan.harvest.status_mail') == 'errors' \
                        and status['last_job']['stats']['errored']:
-                        prepare_error_mail(
+                        subject, body = prepare_error_mail(
                             context,
                             job_obj.source_id,
                             status,
                             'emails/error_email.txt')
+                        send_mail(context, job_obj.source.id, subject, body)
 
                     if config.get('ckan.harvest.status_mail') == 'all':
-                        prepare_summary_mail(
+                        subject, body = prepare_summary_mail(
                             context,
                             job_obj.source.id,
                             status,
                             'emails/summary_email.txt')
+                        send_mail(context, job_obj.source.id, subject, body)
                 else:
                     log.debug('Ongoing job:%s source:%s',
                               job['id'], job['source_id'])
@@ -680,9 +682,7 @@ def prepare_summary_mail(context, source_id, status, template):
         subject = '{} - Harvesting Job with Errors - Summary Notification'\
                   .format(config.get('ckan.site_title'))
 
-    send_mail(context, source_id, subject, body)
-
-    return
+    return subject, body
 
 
 def prepare_error_mail(context, source_id, status, template):
@@ -691,9 +691,7 @@ def prepare_error_mail(context, source_id, status, template):
     subject = '{} - Harvesting Job - Error Notification'\
               .format(config.get('ckan.site_title'))
 
-    send_mail(context, source_id, subject, body)
-
-    return
+    return subject, body
 
 
 def send_mail(context, source_id, subject, body):
