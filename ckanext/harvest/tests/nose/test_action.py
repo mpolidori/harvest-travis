@@ -709,7 +709,7 @@ class TestHarvestMail(FunctionalTestBase):
 
     def test_prepare_error_mail_successful(self):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
-        status = get_action('harvest_source_show_status')(
+        status = toolkit.get_action('harvest_source_show_status')(
             context, {'id': harvest_source['id']})
         subject, body = toolkit.get_action('prepare_summary_mail')(
             context, harvest_source['id'], status, 'emails/summary_email.txt')
