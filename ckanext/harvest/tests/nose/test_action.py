@@ -717,7 +717,7 @@ class TestHarvestMail(FunctionalTestBase):
         print(subject)
 
         assert isinstance(subject, str)
-        assert isinstance(body, dict)
+        assert isinstance(body, str)
 
     def test_prepare_summary_mail_error(self):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
@@ -731,11 +731,12 @@ class TestHarvestMail(FunctionalTestBase):
         msg = 'System error - No harvester could be found for source type %s' % job_model.source.type
         err = HarvestGatherError(message=msg, job=job_model)
         err.save()
+        status['last_job']['stats'].update({'errored': 1})
         print(str(status['last_job']['stats'].get('errored', 0)))
         print(subject)
 
         assert isinstance(subject, str)
-        assert isinstance(body, dict)
+        assert isinstance(body, str)
 
     @patch('ckan.lib.mailer.mail_recipient')
     def test_error_mail_sent(self, mock_mailer_mail_recipient):
