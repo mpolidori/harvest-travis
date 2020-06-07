@@ -711,7 +711,7 @@ class TestHarvestMail(FunctionalTestBase):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
         status = toolkit.get_action('harvest_source_show_status')(
             context, {'id': harvest_source['id']})
-        subject, body = toolkit.get_action('prepare_summary_mail')(
+        subject, body = prepare_summary_mail(
             context, harvest_source['id'], status, 'emails/summary_email.txt')
         assert subject == '{} - Harvesting Job with Errors - Summary Notification'\
                           .format(config.get('ckan.site_title'))
