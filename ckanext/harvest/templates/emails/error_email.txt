@@ -1,0 +1,19 @@
+This is a failure notification of the latest harvest job ({{ job_url }}) set-up in {{ site_url }}.
+
+Harvest Source: {{ harvest_source_title }}
+Harvest Configuration: {{ harvest_configuration }}
+
+Organization: {{ organization }}
+
+Last Job: {{ last_job }}
+
+Harvest Job Id: {{ job_id }}
+Created: {{ job_created }}
+Finished: {{ job_finished }}
+
+Records in Error: {{ records_in_error }}
+
+{{ errors }}
+--
+You are receiving this email because you are currently set-up as Administrator for {{ site_url }}.
+Please do not reply to this email as it was sent from a non-monitored address.
