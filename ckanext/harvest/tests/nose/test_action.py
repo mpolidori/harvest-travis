@@ -681,7 +681,11 @@ class TestHarvestMail(FunctionalTestBase):
 
     @patch('ckan.lib.mailer.mail_recipient')
     def test_error_mail_not_sent(self, mock_mailer_mail_recipient):
-        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        context, harvest_source, job = \
+            self._create_harvest_source_and_job_if_not_existing()
+
+        status = toolkit.get_action('harvest_source_show_status')(
+            context, {'id': harvest_source['id']})
 
         send_mail(
             context,
@@ -695,7 +699,8 @@ class TestHarvestMail(FunctionalTestBase):
 
     @patch('ckan.lib.mailer.mail_recipient')
     def test_mail_sent(self, mock_mailer_mail_recipient):
-        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        context, harvest_source, job = \
+            self._create_harvest_source_and_job_if_not_existing()
 
         send_mail(
             context,
@@ -707,7 +712,8 @@ class TestHarvestMail(FunctionalTestBase):
         assert mock_mailer_mail_recipient.called
 
     def test_prepare_summary_mail_successful(self):
-        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        context, harvest_source, job = \
+            self._create_harvest_source_and_job_if_not_existing()
         status = toolkit.get_action('harvest_source_show_status')(
             context, {'id': harvest_source['id']})
         subject, body = prepare_summary_mail(
@@ -720,7 +726,8 @@ class TestHarvestMail(FunctionalTestBase):
         assert isinstance(body, unicode)
 
     def test_prepare_summary_mail_error(self):
-        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        context, harvest_source, job = \
+            self._create_harvest_source_and_job_if_not_existing()
         status = toolkit.get_action('harvest_source_show_status')(
             context, {'id': harvest_source['id']})
         # Create error
@@ -735,7 +742,8 @@ class TestHarvestMail(FunctionalTestBase):
         assert isinstance(body, unicode)
 
     def test_prepare_error_mail_successful(self):
-        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        context, harvest_source, job = \
+            self._create_harvest_source_and_job_if_not_existing()
         status = toolkit.get_action('harvest_source_show_status')(
             context, {'id': harvest_source['id']})
         subject, body = prepare_error_mail(
