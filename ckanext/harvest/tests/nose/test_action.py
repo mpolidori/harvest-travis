@@ -680,24 +680,6 @@ class TestHarvestMail(FunctionalTestBase):
         return context, harvest_source, job
 
     @patch('ckan.lib.mailer.mail_recipient')
-    def test_error_mail_not_sent(self, mock_mailer_mail_recipient):
-        context, harvest_source, job = \
-            self._create_harvest_source_and_job_if_not_existing()
-
-        status = toolkit.get_action('harvest_source_show_status')(
-            context, {'id': harvest_source['id']})
-
-        send_mail(
-            context,
-            harvest_source['id'],
-            'subject',
-            'body'
-        )
-
-        assert_equal(0, status['last_job']['stats']['errored'])
-        assert mock_mailer_mail_recipient.not_called
-
-    @patch('ckan.lib.mailer.mail_recipient')
     def test_mail_sent(self, mock_mailer_mail_recipient):
         context, harvest_source, job = \
             self._create_harvest_source_and_job_if_not_existing()
@@ -710,6 +692,17 @@ class TestHarvestMail(FunctionalTestBase):
         )
 
         assert mock_mailer_mail_recipient.called
+
+    def test_get_mail_extra_vars(self):
+        context, harvest_source, job = \
+            self._create_harvest_source_and_job_if_not_existing()
+        status = toolkit.get_action('harvest_source_show_status')(
+            context, {'id': harvest_source['id']})
+        extra_vars = get_mail_extra_vars(
+            context, harvest_source['id'], status)
+
+        assert isinstance(extra_vars, dict)
+        assert_equal(len(extra_vars), 15)
 
     def test_prepare_summary_mail_successful(self):
         context, harvest_source, job = \
@@ -754,6 +747,24 @@ class TestHarvestMail(FunctionalTestBase):
             '{} - Harvesting Job - Error Notification'
             .format(config.get('ckan.site_title')))
         assert isinstance(body, unicode)
+
+    @patch('ckan.lib.mailer.mail_recipient')
+    def test_error_mail_not_sent(self, mock_mailer_mail_recipient):
+        context, harvest_source, job = \
+            self._create_harvest_source_and_job_if_not_existing()
+
+        status = toolkit.get_action('harvest_source_show_status')(
+            context, {'id': harvest_source['id']})
+
+        send_mail(
+            context,
+            harvest_source['id'],
+            'subject',
+            'body'
+        )
+
+        assert_equal(0, status['last_job']['stats']['errored'])
+        assert mock_mailer_mail_recipient.not_called
 
     @patch('ckan.lib.mailer.mail_recipient')
     def test_error_mail_sent(self, mock_mailer_mail_recipient):
