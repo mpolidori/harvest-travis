@@ -751,10 +751,11 @@ class TestHarvestMail(FunctionalTestBase):
 
         status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
 
-        send_error_mail(
+        send_mail(
             context,
             harvest_source['id'],
-            status
+            'subject',
+            'body'
         )
 
         assert_equal(1, status['last_job']['stats']['errored'])
@@ -772,10 +773,11 @@ class TestHarvestMail(FunctionalTestBase):
 
         status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
 
-        send_error_mail(
+        send_mail(
             context,
             harvest_source['id'],
-            status
+            'subject',
+            'body'
         )
 
         assert_equal(1, status['last_job']['stats']['errored'])
