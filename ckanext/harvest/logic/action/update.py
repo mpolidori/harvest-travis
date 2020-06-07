@@ -697,13 +697,6 @@ def prepare_error_mail(context, source_id, status, template):
 
 
 def send_mail(context, source_id, subject, body):
-    context = {'organization': 'test-org'}
-    org_show = get_action('organization_show')(context, {'id': 'test-org'})['extras']
-    log.error(org_show)
-    for org in org_show:
-        if org['key'] == 'organization_type':
-            log.error(org['value'])
-    return
     source = get_action('harvest_source_show')(context, {'id': source_id})
     recipients = []
 
