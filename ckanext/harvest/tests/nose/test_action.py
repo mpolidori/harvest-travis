@@ -678,20 +678,20 @@ class TestHarvestMail(FunctionalTestBase):
         toolkit.get_action('harvest_source_reindex')(context.copy(), {'id': harvest_source['id']})
         return context, harvest_source, job
 
-    #@patch('ckan.lib.mailer.mail_recipient')
-    #def test_error_mail_not_sent(self, mock_mailer_mail_recipient):
-    #    context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+    @patch('ckan.lib.mailer.mail_recipient')
+    def test_error_mail_not_sent(self, mock_mailer_mail_recipient):
+        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
 
-    #    status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
+        status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
 
-    #    send_mail(
-    #        context,
-    #        harvest_source['id'],
-    #        'subject',
-    #        'body'
-    #    )
-    #    assert_equal(0, status['last_job']['stats']['errored'])
-    #    assert mock_mailer_mail_recipient.not_called
+        send_mail(
+            context,
+            harvest_source['id'],
+            'subject',
+            'body'
+        )
+        assert_equal(0, status['last_job']['stats']['errored'])
+        assert mock_mailer_mail_recipient.not_called
 
     @patch('ckan.lib.mailer.mail_recipient')
     def test_send_mail(self, mock_mailer_mail_recipient):
@@ -705,84 +705,84 @@ class TestHarvestMail(FunctionalTestBase):
 
         assert mock_mailer_mail_recipient.called
 
-    #@patch('ckan.lib.mailer.mail_recipient')
-    #def test_error_mail_sent(self, mock_mailer_mail_recipient):
-    #    context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
-    #    print(harvest_source)
-    #    # create a HarvestGatherError
-    #    job_model = HarvestJob.get(job['id'])
-    #    msg = 'System error - No harvester could be found for source type %s' % job_model.source.type
-    #    err = HarvestGatherError(message=msg, job=job_model)
-    #    err.save()
+    @patch('ckan.lib.mailer.mail_recipient')
+    def test_error_mail_sent(self, mock_mailer_mail_recipient):
+        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        print(harvest_source)
+        # create a HarvestGatherError
+        job_model = HarvestJob.get(job['id'])
+        msg = 'System error - No harvester could be found for source type %s' % job_model.source.type
+        err = HarvestGatherError(message=msg, job=job_model)
+        err.save()
 
-    #    status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
+        status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
 
-    #    send_mail(
-    #        context,
-    #        harvest_source['id'],
-    #        'subject',
-    #        'body'
-    #    )
+        send_mail(
+            context,
+            harvest_source['id'],
+            'subject',
+            'body'
+        )
 
-    #    assert_equal(1, status['last_job']['stats']['errored'])
-    #    assert mock_mailer_mail_recipient.called
+        assert_equal(1, status['last_job']['stats']['errored'])
+        assert mock_mailer_mail_recipient.called
 
-    #@patch('ckan.lib.mailer.mail_recipient')
-    #def test_error_mail_sent_with_object_error(self, mock_mailer_mail_recipient):
+    @patch('ckan.lib.mailer.mail_recipient')
+    def test_error_mail_sent_with_object_error(self, mock_mailer_mail_recipient):
 
-    #    context, harvest_source, harvest_job = self._create_harvest_source_and_job_if_not_existing()
+        context, harvest_source, harvest_job = self._create_harvest_source_and_job_if_not_existing()
 
-    #    data_dict = {
-    #        'guid': 'guid',
-    #        'content': 'content',
-    #        'job_id': harvest_job['id'],
-    #        'extras': {'a key': 'a value'},
-    #        'source_id': harvest_source['id']
-    #    }
-    #    harvest_object = toolkit.get_action('harvest_object_create')(
-    #        context, data_dict)
+        data_dict = {
+            'guid': 'guid',
+            'content': 'content',
+            'job_id': harvest_job['id'],
+            'extras': {'a key': 'a value'},
+            'source_id': harvest_source['id']
+        }
+        harvest_object = toolkit.get_action('harvest_object_create')(
+            context, data_dict)
 
-    #    harvest_object_model = HarvestObject.get(harvest_object['id'])
+        harvest_object_model = HarvestObject.get(harvest_object['id'])
 
-    #    # create a HarvestObjectError
-    #    msg = 'HarvestObjectError occured: %s' % harvest_job['id']
-    #    harvest_object_error = HarvestObjectError(message=msg, object=harvest_object_model)
-    #    harvest_object_error.save()
+        # create a HarvestObjectError
+        msg = 'HarvestObjectError occured: %s' % harvest_job['id']
+        harvest_object_error = HarvestObjectError(message=msg, object=harvest_object_model)
+        harvest_object_error.save()
 
-    #    status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
+        status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
 
-    #    send_mail(
-    #        context,
-    #        harvest_source['id'],
-    #        'subject',
-    #        'body'
-    #    )
+        send_mail(
+            context,
+            harvest_source['id'],
+            'subject',
+            'body'
+        )
 
-    #    assert_equal(1, status['last_job']['stats']['errored'])
-    #    assert mock_mailer_mail_recipient.called
+        assert_equal(1, status['last_job']['stats']['errored'])
+        assert mock_mailer_mail_recipient.called
 
-    #@patch('ckan.lib.mailer.mail_recipient')
-    #def test_error_mail_sent_with_org(self, mock_mailer_mail_recipient):
-    #    context, harvest_source, job = self._create_harvest_source_with_owner_org_and_job_if_not_existing()
+    @patch('ckan.lib.mailer.mail_recipient')
+    def test_error_mail_sent_with_org(self, mock_mailer_mail_recipient):
+        context, harvest_source, job = self._create_harvest_source_with_owner_org_and_job_if_not_existing()
 
-    #    # create a HarvestGatherError
-    #    job_model = HarvestJob.get(job['id'])
-    #    msg = 'System error - No harvester could be found for source type %s' % job_model.source.type
-    #    err = HarvestGatherError(message=msg, job=job_model)
-    #    err.save()
+        # create a HarvestGatherError
+        job_model = HarvestJob.get(job['id'])
+        msg = 'System error - No harvester could be found for source type %s' % job_model.source.type
+        err = HarvestGatherError(message=msg, job=job_model)
+        err.save()
 
-    #    status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
+        status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
 
-    #    send_mail(
-    #        context,
-    #        harvest_source['id'],
-    #        'subject',
-    #        'body'
-    #    )
+        send_mail(
+            context,
+            harvest_source['id'],
+            'subject',
+            'body'
+        )
 
-    #    assert_equal(1, status['last_job']['stats']['errored'])
-    #    assert mock_mailer_mail_recipient.called
-    #    assert_equal(2, mock_mailer_mail_recipient.call_count)
+        assert_equal(1, status['last_job']['stats']['errored'])
+        assert mock_mailer_mail_recipient.called
+        assert_equal(2, mock_mailer_mail_recipient.call_count)
 
 
 # Skip for now as the Harvest DB log doesn't work on CKAN 2.9
