@@ -683,14 +683,13 @@ class TestHarvestMail(FunctionalTestBase):
     def test_error_mail_not_sent(self, mock_mailer_mail_recipient):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
 
-        status = toolkit.get_action('harvest_source_show_status')(context, {'id': harvest_source['id']})
-
         send_mail(
             context,
             harvest_source['id'],
             'subject',
             'body'
         )
+
         assert_equal(0, status['last_job']['stats']['errored'])
         assert mock_mailer_mail_recipient.not_called
 
@@ -714,8 +713,10 @@ class TestHarvestMail(FunctionalTestBase):
         subject, body = prepare_summary_mail(
             context, harvest_source['id'], status, 'emails/summary_email.txt')
 
-        assert subject == '{} - Harvesting Job Successful - Summary Notification'\
-                          .format(config.get('ckan.site_title'))
+        assert_equal(
+            subject,
+            '{} - Harvesting Job Successful - Summary Notification'
+            .format(config.get('ckan.site_title')))
         assert isinstance(body, unicode)
 
     def test_prepare_summary_mail_error(self):
@@ -727,8 +728,23 @@ class TestHarvestMail(FunctionalTestBase):
         subject, body = prepare_summary_mail(
             context, harvest_source['id'], status, 'emails/summary_email.txt')
 
-        assert subject == '{} - Harvesting Job with Errors - Summary Notification'\
-                          .format(config.get('ckan.site_title'))
+        assert_equal(
+            subject,
+            '{} - Harvesting Job with Errors - Summary Notification'
+            .format(config.get('ckan.site_title')))
+        assert isinstance(body, unicode)
+
+    def test_prepare_error_mail_successful(self):
+        context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
+        status = toolkit.get_action('harvest_source_show_status')(
+            context, {'id': harvest_source['id']})
+        subject, body = prepare_error_mail(
+            context, harvest_source['id'], status, 'emails/error_email.txt')
+
+        assert_equal(
+            subject,
+            '{} - Harvesting Job - Error Notification'
+            .format(config.get('ckan.site_title')))
         assert isinstance(body, unicode)
 
     @patch('ckan.lib.mailer.mail_recipient')
