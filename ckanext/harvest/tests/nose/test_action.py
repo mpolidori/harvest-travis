@@ -687,8 +687,8 @@ class TestHarvestMail(FunctionalTestBase):
         send_mail(
             context,
             harvest_source['id'],
-            'subject',
-            'body'
+            'subject test',
+            'body test'
         )
 
         assert mock_mailer_mail_recipient.called
@@ -734,7 +734,7 @@ class TestHarvestMail(FunctionalTestBase):
             .format(config.get('ckan.site_title')))
         assert isinstance(body, unicode)
 
-    def test_prepare_error_mail_successful(self):
+    def test_prepare_error_mail(self):
         context, harvest_source, job = \
             self._create_harvest_source_and_job_if_not_existing()
         status = toolkit.get_action('harvest_source_show_status')(
@@ -752,7 +752,6 @@ class TestHarvestMail(FunctionalTestBase):
     def test_error_mail_not_sent(self, mock_mailer_mail_recipient):
         context, harvest_source, job = \
             self._create_harvest_source_and_job_if_not_existing()
-
         status = toolkit.get_action('harvest_source_show_status')(
             context, {'id': harvest_source['id']})
 
@@ -762,6 +761,7 @@ class TestHarvestMail(FunctionalTestBase):
             'subject',
             'body'
         )
+        print(mock_mailer_mail_recipient.not_called)
 
         assert_equal(0, status['last_job']['stats']['errored'])
         assert mock_mailer_mail_recipient.not_called
