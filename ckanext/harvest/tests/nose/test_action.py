@@ -697,7 +697,7 @@ class TestHarvestMail(FunctionalTestBase):
     def test_something(self, mock_mailer_mail_recipient):
         context, harvest_source, job = self._create_harvest_source_and_job_if_not_existing()
         send_mail(
-            {},
+            context,
             harvest_source['id'],
             'subject',
             'body'
