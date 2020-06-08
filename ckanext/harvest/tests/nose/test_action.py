@@ -7,6 +7,7 @@ from nose.plugins.skip import SkipTest
 
 from ckantoolkit.tests import factories as ckan_factories
 from ckantoolkit.tests.helpers import _get_test_app, reset_db, FunctionalTestBase
+from ckantoolkit import config
 
 from ckan import plugins as p
 from ckan.plugins import toolkit
