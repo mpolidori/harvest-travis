@@ -1,7 +1,7 @@
 This is a failure notification of the latest harvest job ({{ job_url }}) set-up in {{ site_url }}.
 
 Harvest Source: {{ harvest_source_title }}
-Harvest Configuration: {{ harvest_configuration }}
+Harvest Configuration: {{ harvest_configuration | safe }}
 
 Organization: {{ organization }}
 

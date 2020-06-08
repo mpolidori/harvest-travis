@@ -574,6 +574,8 @@ def harvest_jobs_run(context, data_dict):
                             job_obj.source_id,
                             status,
                             'emails/error_email.txt')
+
+                        log.info('Sending error mail')
                         send_mail(context, job_obj.source.id, subject, body)
 
                     if config.get('ckan.harvest.status_mail') == 'all':
@@ -582,6 +584,8 @@ def harvest_jobs_run(context, data_dict):
                             job_obj.source.id,
                             status,
                             'emails/summary_email.txt')
+
+                        log.info('Sending summary email')
                         send_mail(context, job_obj.source.id, subject, body)
                 else:
                     log.debug('Ongoing job:%s source:%s',
@@ -602,6 +606,9 @@ def get_mail_extra_vars(context, source_id, status):
     harvest_objects = get_action(
         'harvest_object_list')(context, {'id': source_id})
     packages = ''
+
+    if len(harvest_objects) > 0:
+        packages += 'Package List:\n'
 
     for harvest_object in harvest_objects:
         object_info = get_action(
@@ -644,7 +651,8 @@ def get_mail_extra_vars(context, source_id, status):
         organization = 'Not specified'
 
     harvest_configuration = source.get('config')
-    if harvest_configuration in [None, '']:
+
+    if harvest_configuration in [None, '', '{}']:
         harvest_configuration = 'Not specified'
 
     extra_vars = {

@@ -7,7 +7,6 @@ from nose.plugins.skip import SkipTest
 
 from ckantoolkit.tests import factories as ckan_factories
 from ckantoolkit.tests.helpers import _get_test_app, reset_db, FunctionalTestBase
-from ckantoolkit import config
 
 from ckan import plugins as p
 from ckan.plugins import toolkit
@@ -687,8 +686,8 @@ class TestHarvestMail(FunctionalTestBase):
         send_mail(
             context,
             harvest_source['id'],
-            'subject test',
-            'body test'
+            'test subject',
+            'test body'
         )
 
         assert mock_mailer_mail_recipient.called
@@ -758,10 +757,9 @@ class TestHarvestMail(FunctionalTestBase):
         send_mail(
             context,
             harvest_source['id'],
-            'subject',
-            'body'
+            'test subject',
+            'test body'
         )
-        print(mock_mailer_mail_recipient.not_called)
 
         assert_equal(0, status['last_job']['stats']['errored'])
         assert mock_mailer_mail_recipient.not_called
@@ -781,8 +779,8 @@ class TestHarvestMail(FunctionalTestBase):
         send_mail(
             context,
             harvest_source['id'],
-            'subject',
-            'body'
+            'test subject',
+            'test body'
         )
 
         assert_equal(1, status['last_job']['stats']['errored'])
@@ -815,8 +813,8 @@ class TestHarvestMail(FunctionalTestBase):
         send_mail(
             context,
             harvest_source['id'],
-            'subject',
-            'body'
+            'test subject',
+            'test body'
         )
 
         assert_equal(1, status['last_job']['stats']['errored'])
@@ -837,8 +835,8 @@ class TestHarvestMail(FunctionalTestBase):
         send_mail(
             context,
             harvest_source['id'],
-            'subject',
-            'body'
+            'test subject',
+            'test body'
         )
 
         assert_equal(1, status['last_job']['stats']['errored'])

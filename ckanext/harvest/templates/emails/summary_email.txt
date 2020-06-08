@@ -1,7 +1,7 @@
 This is a summary of the latest harvest job ({{ job_url }}) set-up in {{ site_url }}.
 
 Harvest Source: {{ harvest_source_title }}
-Harvest Configuration: {{ harvest_configuration }}
+Harvest Configuration: {{ harvest_configuration | safe }}
 
 Organization: {{ organization }}
 
@@ -16,7 +16,6 @@ Records Deleted: {{ records_deleted }}
 
 {{ errors }}
 
-Package List
 {{ packages }}
 --
 You are receiving this email because you are currently set-up as Administrator for {{ site_url }}.
