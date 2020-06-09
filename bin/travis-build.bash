@@ -2,20 +2,17 @@
 set -e
 
 echo "This is travis-build.bash..."
-echo "Targetting CKAN $CKANVERSION on Python $TRAVIS_PYTHON_VERSION"
-if [ $CKANVERSION == 'master' ]
-then
-    export CKAN_MINOR_VERSION=100
-else
-    export CKAN_MINOR_VERSION=${CKANVERSION##*.}
-fi
-
-export PYTHON_MAJOR_VERSION=${TRAVIS_PYTHON_VERSION%.*}
-
 
 echo "Installing the packages that CKAN requires..."
 sudo apt-get update -qq
 sudo apt-get install solr-jetty
+
+if python -c 'import sys;exit(sys.version_info < (3,))'
+then
+    PYTHONVERSION=3
+else
+    PYTHONVERSION=2
+fi
 
 echo "Installing CKAN and its Python dependencies..."
 git clone https://github.com/ckan/ckan
@@ -29,40 +26,39 @@ else
     echo "CKAN version: ${CKAN_TAG#ckan-}"
 fi
 
+if [ -f requirement-setuptools.txt ]
+then
+    pip install -r requirement-setuptools.txt
+fi
 python setup.py develop
 
-if (( $CKAN_MINOR_VERSION >= 9 )) && (( $PYTHON_MAJOR_VERSION == 2 ))
+if [ -f requirements-py2.txt ] && [ $PYTHONVERSION = 2 ]
 then
-    pip install -r requirements-py2.txt
+    grep -v psycopg2 < requirements-py2.txt > reqs.txt
 else
-    pip install -r requirements.txt
+    grep -v psycopg2 < requirements.txt > reqs.txt
 fi
-
+pip install psycopg2==2.7.7  # workaround travis 10 psycopg2 incompatibility
+pip install -r reqs.txt
 pip install -r dev-requirements.txt
 cd -
 
 echo "Setting up Solr..."
-# solr is multicore for tests on ckan master now, but it's easier to run tests
-# on Travis single-core still.
-# see https://github.com/ckan/ckan/issues/2972
-sed -i -e 's/solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' ckan/test-core.ini
 printf "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
 sudo cp ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
 sudo service jetty restart
 
 echo "Creating the PostgreSQL user and database..."
 sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
-sudo -u postgres psql -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
 sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
-sudo -u postgres psql -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
 
 echo "Initialising the database..."
 cd ckan
-if (( $CKAN_MINOR_VERSION >= 9 ))
+if [ $CKANVERSION \< '2.9' ]
 then
-    ckan -c test-core.ini db init
-else
     paster db init -c test-core.ini
+else
+    ckan -c test-core.ini db init
 fi
 cd -
 
@@ -72,19 +68,13 @@ pip install -r dev-requirements.txt
 
 python setup.py develop
 
+echo "Updating solr_url to single core"
+sed -i -e 's/use = config:..\/ckan\/test-core.ini/use = config:..\/ckan\/test-core.ini\nsolr_url = http:\/\/127.0.0.1:8983\/solr/' test*.ini
 
-echo "Moving test.ini into a subdir... (because the core ini file is referenced as ../ckan/test-core.ini)"
+
+echo "Moving test.ini into a subdir..."
 mkdir subdir
 mv test.ini subdir
 mv test-nose.ini subdir
-
-
-if (( $CKAN_MINOR_VERSION >= 9 ))
-then
-    ckan -c subdir/test.ini harvester initdb
-else
-    paster harvester initdb -c subdir/test.ini
-fi
-
 
 echo "travis-build.bash is done."
